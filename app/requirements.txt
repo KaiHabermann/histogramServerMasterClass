@@ -1,0 +1,10 @@
+matplotlib
+numpy
+flask
+pandas
+plotly
+uproot
+dash
+dash_bootstrap_components
+dash_daq
+scipy
