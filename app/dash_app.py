@@ -57,7 +57,7 @@ app.layout = html.Div([
  daq.ToggleSwitch(
     label='Kaon from Omega_c',
     labelPosition='bottom',
-    value=True,
+    value=False,
     style={'float': 'left','margin': 'auto'},
     id="kaon2_button"
 ),
