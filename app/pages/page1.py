@@ -6,6 +6,7 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 import uproot
+import os
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 import plotly.graph_objects as go
@@ -13,7 +14,13 @@ import plotly.express as px
 dash.register_page(__name__,path='/task1',title='Task 1',
     name='Task 1',top_nav=True,)
 
-MY_DATA = "/data/MasterClassAllCuts.root"
+local_path=os.path.dirname( 
+    os.path.dirname(
+        os.path.dirname(__file__)
+        )
+    )
+
+MY_DATA = os.path.join(local_path,"data/MasterClassSmall.root")
 NBINS = 100
 NBINS_MASS = 200
 NSTEPS = 20
