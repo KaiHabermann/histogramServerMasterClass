@@ -11,6 +11,15 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 import plotly.graph_objects as go
 import plotly.express as px
+from scipy.optimize import curve_fit
+
+# import pyaml
+# config = pyaml.yaml.load(open("config.yaml", "r"), Loader=pyaml.yaml.Loader)
+
+NBINS = 100
+NBINS_MASS = 200
+NSTEPS = 20
+
 dash.register_page(__name__,path='/task1',title='Task 1',
     name='Task 1',top_nav=True,)
 
@@ -20,13 +29,11 @@ local_path=os.path.dirname(
         )
     )
 
-MY_DATA = os.path.join(local_path,"data/MasterClassSmall.root")
-NBINS = 100
-NBINS_MASS = 200
-NSTEPS = 20
-print("Loading data")
+MY_DATA = os.path.join(local_path,"data/MasterClassAllCuts.root")
+# MY_DATA = os.path.join(local_path,"data/MasterClassSmall.root")
+
+
 df_ = uproot.open(MY_DATA)["DecayTree"].arrays(library="numpy")
-print("Done")
 for p in "XYZE":
     df_[f"lab0_P{p}"] = df_[f"lab0_P{p}_DTF_Xic"]
 df_[f"lab0_M"] = df_[f"lab0_M_DTF_Xic"]
@@ -39,8 +46,10 @@ collumn_names = {
         "lab1_IP_OWNPV": {"x": "Impact Parameter", "y": "Counts"},
         "lab1_IPCHI2_OWNPV": {"x": "IP", "y": "Counts"},
         "lab1_FDCHI2_OWNPV": {"x": "FD CHI2", "y": "Counts"},
+        "lab1_FD_OWNPV": {"x": "Flight Distance of Xi_c", "y": "Counts"},
         "mass_component": {"x": "M", "y": "Counts"},
         "lab0_PT": {"x": "Transverse Momentum", "y": "Counts"},
+        "lab1_PT": {"x": "Transverse Momentum", "y": "Counts"},
         "lab0_M": {"x": "M", "y": "Counts"},
         "lab1_M": {"x": "M", "y": "Counts"}
 
@@ -55,7 +64,8 @@ ranges = {
     "lab1_IPCHI2_OWNPV": [0,30],
     "lab1_FDCHI2_OWNPV": [0,500],
     "mass_component": [2415,2520],
-    "lab0_PT": [min(df_["lab0_PT"]),max(df_["lab0_PT"])],
+    "lab1_FD_OWNPV": [min(df_["lab1_FD_OWNPV"]),80],
+    "lab0_PT": [min(df_["lab0_PT"]),25000],
     "lab0_M": [min(df_["lab0_M"]),max(df_["lab0_M"])],
     "lab1_M": [min(df_["lab1_M"]),max(df_["lab1_M"])]
 
@@ -67,7 +77,7 @@ cuts = {
     "lab2_ProbNNp": None,
     "lab5_ProbNNk": None,
     "lab1_IPCHI2_OWNPV": None,
-    "lab1_IP_OWNPV": None,
+    "lab1_FD_OWNPV": None,
     "lab0_PT": None
 
 }
@@ -84,12 +94,10 @@ for cut in cuts:
 mask = np.ones(len(df_["lab1_IPCHI2_OWNPV"]), dtype=bool)
 
 def get_data(key="lab1_IPCHI2_OWNPV"):
-    print("Getting data")
     global mask
     dat = df_[key][mask]
     n, bins = np.histogram(dat, bins=np.linspace(ranges[key][0],ranges[key][1],NBINS if not key == "mass_component" else NBINS_MASS))
     bin_centers = 0.5*(bins[1:] + bins[:-1])
-    print("Done")
     return bin_centers, n
 
 def change_mask(key, value):
@@ -99,8 +107,6 @@ def change_mask(key, value):
     for key, cut in cuts.items():
         lower, upper = cut
         mask = mask & (df_[key] < upper) & (df_[key] > lower)
-
-
 
 def get_callback(cut,norange=False):
     def callaback_figure(value):
@@ -120,7 +126,6 @@ def change_mass(particle, value):
     mass_particles = tuple(sorted([p for p in mass_particles if p != particle]))
     if value:
         mass_particles = tuple(sorted(list(mass_particles) + [particle]))
-    print(mass_particles)
     if mass_particles == (2,3,4,5):
         change_mask("lab1_M",[2456.,2480.])
     else:
@@ -139,6 +144,8 @@ def calculate_mass():
     E = sum([df_[f"lab{i}_PE"]for i in mass_particles])
     mass = np.sqrt(E**2 - x**2 - Y**2 - Z**2)
     if mass_particles == (2,3,4,5):
+        # here we want the DTF calculated mass for the Omega_c states
+        # DTF will fix the mass of the Xi_c to the PDG value
         mass = df_["lab0_M"]
     df_["mass_component"] = mass
     mn = np.mean(mass)
@@ -153,7 +160,6 @@ def calculate_mass():
 
 def get_mass_callback(particle):
     def f(value):
-        print(value)
         change_mass(particle, value)
         calculate_mass()
         return []
@@ -311,16 +317,10 @@ def Omega_Spectrum(value):
     ])
 
 def get_purity(value):
+    # value is not used, I just dont dare remove it because I dont know what I am doing
     global mass_particles
     if mass_particles == (2,3,4,5):
         return Omega_Spectrum(value)
-    # vlaue is not used, I just dont dare remove it because I dont know what I am doing
-    import pandas as pd
-    import numpy as np
-
-    # from jax import numpy as jnp
-    from scipy.optimize import curve_fit
-
     mass = get_mass() 
     centers, n = get_data("mass_component")
     def gaussian(x, a, x0, sigma):
@@ -348,7 +348,6 @@ def get_purity(value):
     y = fit_function(x, *params)
     fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
     purity = gaussian(x, *params[:3]).sum() / y.sum()
-    print(purity)
     if value == 0:
         return fig, "Please press the button to calculate the purity"
     return fig, f"The purity is {purity * 100:.1f}%. This leaves {len(mass) * purity:.0f} signal events."

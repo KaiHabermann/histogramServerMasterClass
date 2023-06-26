@@ -10,26 +10,10 @@ import uproot
 
 import dash_daq as daq
 
-# from pages.page1 import layout as page1_layout
-
 app = Dash(__name__, use_pages=True)
 
 
-
 app.layout = html.Div([
-	# html.H1('Multi-page app with Dash Pages'),
-
-    # html.Div(
-    #     [
-    #         html.Div(
-    #             dcc.Link(
-    #                 f"{page['name']} - {page['path']}", href=page["relative_path"]
-    #             )
-    #         )
-    #         for page in dash.page_registry.values()
-    #     ]
-    # ),
-
 	dash.page_container,
     html.Div(id='outer', children=[
     html.Div(id='inner', children=[

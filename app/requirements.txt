@@ -8,3 +8,4 @@ dash
 dash_bootstrap_components
 dash_daq
 scipy
+pyaml
