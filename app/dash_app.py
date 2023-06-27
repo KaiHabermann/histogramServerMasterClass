@@ -18,28 +18,28 @@ app.layout = html.Div([
     html.Div(id='outer', children=[
     html.Div(id='inner', children=[
         daq.ToggleSwitch(
-    label='Kaon from Xic',
+    label='Kaon from secondary vertex',
     labelPosition='bottom',
     value=True,
     style={'float': 'left','margin': 'auto'},
     id="kaon_button"
 ),
  daq.ToggleSwitch(
-    label='Proton from Xic',
+    label='Proton from secondary vertex',
     labelPosition='bottom',
     value=True,
     style={'float': 'left','margin': 'auto'},
     id="proton_button"
 ),
  daq.ToggleSwitch(
-    label='Pion from Xic',
+    label='Pion from secondary vertex',
     labelPosition='bottom',
     value=True,
     style={'float': 'left','margin': 'auto'},
     id="pion_button"
 ),
  daq.ToggleSwitch(
-    label='Kaon from Omega_c',
+    label='Kaon from primary vertex',
     labelPosition='bottom',
     value=False,
     style={'float': 'left','margin': 'auto'},

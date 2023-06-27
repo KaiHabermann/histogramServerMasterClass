@@ -40,16 +40,16 @@ df_[f"lab0_M"] = df_[f"lab0_M_DTF_Xic"]
 
 collumn_names = {
         "lab0_CHI2NDOF_DTF_Xic": {"x": "DTF CHI2 / NDF", "y": "Counts"},
-        "lab3_ProbNNk": {"x": "ProbNNk for Kaon from Xi_c", "y": "Counts"},
-        "lab5_ProbNNk": {"x": "ProbNNk for Kaon from Omega_c ", "y": "Counts"},
+        "lab3_ProbNNk": {"x": 'ProbNNk for Kaon from Ξ', "y": "Counts"},
+        "lab5_ProbNNk": {"x": "ProbNNk for Kaon from Ω", "y": "Counts"},
         "lab2_ProbNNp": {"x": "ProbNNp for Proton", "y": "Counts"},
         "lab1_IP_OWNPV": {"x": "Impact Parameter", "y": "Counts"},
         "lab1_IPCHI2_OWNPV": {"x": "IP", "y": "Counts"},
-        "lab1_FDCHI2_OWNPV": {"x": "FD CHI2", "y": "Counts"},
-        "lab1_FD_OWNPV": {"x": "Flight Distance of Xi_c", "y": "Counts"},
+        "lab1_FDCHI2_OWNPV": {"x": r"$FD \chi^2$", "y": "Counts"},
+        "lab1_FD_OWNPV": {"x": "Flight Distance of Ξ in mm", "y": "Counts"},
         "mass_component": {"x": "M", "y": "Counts"},
-        "lab0_PT": {"x": "Transverse Momentum", "y": "Counts"},
-        "lab1_PT": {"x": "Transverse Momentum", "y": "Counts"},
+        "lab0_PT": {"x": "Transverse Momentum in MeV", "y": "Counts"},
+        "lab1_PT": {"x": "Transverse Momentum in MeV", "y": "Counts"},
         "lab0_M": {"x": "M", "y": "Counts"},
         "lab1_M": {"x": "M", "y": "Counts"}
 
@@ -201,17 +201,22 @@ for i, id in [(3,"kaon"), (2,"proton"), (4,"pion"),(5,"kaon2")]:
 
 keys = list(cuts.keys())
 
+
+
+
 subplots = [
         html.Div(children=[
         html.Div(children=[dcc.Graph(id=f"{key1}_graph"),
-        html.Div( children=[dcc.RangeSlider(*ranges[key1], round( (max(ranges[key1]) - min(ranges[key1])) / NSTEPS, 3),
+        html.Div( children=[dcc.RangeSlider(*ranges[key1], step=None, tooltip={"placement": "bottom", "always_visible": True}, marks=None,
                 value=ranges[key1],
-                id=f'{key1}_slider'
+                id=f'{key1}_slider',
+                allowCross=False
         )],style={"width":'40vw'}),], style={"width":'45vw', "margin": 0, 'display': 'inline-block',"position": "relative"}),
        html.Div(children=[html.Div( children=[dcc.Graph(id=f"{key2}_graph"),
-        dcc.RangeSlider(*ranges[key2], round( (max(ranges[key2]) - min(ranges[key2])) / NSTEPS, 2),
+        dcc.RangeSlider(*ranges[key2], step=None, tooltip={"placement": "bottom", "always_visible": True}, marks=None,
                 value=ranges[key2],
-                id=f'{key2}_slider'
+                id=f'{key2}_slider',
+                allowCross=False
         )],style={"width":'40vw'}),], style={"width":'45vw', "margin": 0, 'display': 'inline-block',"position": "relative"})
     ]) 
     for key1, key2 in zip(keys[0::2],keys[1::2])
@@ -347,6 +352,9 @@ def get_purity(value):
     x = np.linspace(*ranges["mass_component"], 1000)
     y = fit_function(x, *params)
     fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
+    y = background(x, params[-1])
+    fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
+
     purity = gaussian(x, *params[:3]).sum() / y.sum()
     if value == 0:
         return fig, "Please press the button to calculate the purity"
