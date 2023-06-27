@@ -229,7 +229,7 @@ layout = html.Div(children=[
         Use the Sliders to change the cuts on the data!
         '''),] + subplots +[html.Div(children=[html.Button('Calculate Purity', id='purity_button', n_clicks=0),dcc.Graph(id="M_graph")]),
         html.Div(id='putity_text',
-             children='Enter a value and press submit'),
+             children=''),
             html.Div(id="dummy")
         ], id="main_div")
 
