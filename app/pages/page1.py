@@ -352,8 +352,8 @@ def get_purity(value):
     x = np.linspace(*ranges["mass_component"], 1000)
     y = fit_function(x, *params)
     fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
-    y = background(x, params[-1])
-    fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
+    y_ = background(x, params[-1])
+    fig.add_traces(go.Scatter(x= x, y=y_, mode = 'lines',showlegend=False))
 
     purity = gaussian(x, *params[:3]).sum() / y.sum()
     if value == 0:
