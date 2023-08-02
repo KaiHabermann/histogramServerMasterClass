@@ -1,8 +1,9 @@
 
 
- --> Files available at https://www.thingiverse.com/thing:6150640 
+
 
 # You will find all the important information about the Quark-Puzzle below.
+	-> Files available at https://www.thingiverse.com/thing:6150640 
 
 ## What is it about?
 The Quark-Puzzle is a teaching aid from the field of particle and hadron physics. It is intended to help pupils/students/people interested in hadron physics to learn about the basic principles of the Strong Interaction and the Standard Model.
