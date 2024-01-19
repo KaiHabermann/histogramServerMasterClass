@@ -31,6 +31,7 @@ local_path=os.path.dirname(
 MY_DATA = os.path.join(local_path,"data/MasterClassAllCuts.root")
 
 df_ = uproot.open(MY_DATA)["DecayTree"].arrays(library="numpy")
+# print(df_.keys())
 for p in "XYZE":
     df_[f"lab0_P{p}"] = df_[f"lab0_P{p}_DTF_Xic"]
 df_[f"lab0_M"] = df_[f"lab0_M_DTF_Xic"]
@@ -147,131 +148,7 @@ layout = html.Div(children=[
         html.H1(children='Analysis of LHCb data: Task 1'),
         html.Div(children='''
         Use the Sliders to change the cuts on the data!
-        '''),] + subplots +[html.Div(children=[html.Button('Calculate Purity', id='purity_button', n_clicks=0),dcc.Graph(id="M_graph")]),
-        ], id="main_div")
-
-
-def Omega_Spectrum(value):
-    import pandas as pd
-    import numpy as np
-
-    # from jax import numpy as jnp
-    from scipy.optimize import curve_fit
-    mass = get_mass() 
-    centers, n = get_data("mass_component")
-    def gaussian(x, a, x0, sigma):
-        return abs(a) * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
-    
-    def background(x, a,c, d):
-        return abs(a) * (1-np.exp(-(x -d) * c))
-    
-    def poly(x,*args):
-        return np.polynomial.chebyshev.Chebyshev(args,domain=[min(mass),max(mass)])(x)
-
-    x01 = 3000. 
-    x02 = 3050.
-    x03 = 3066.
-    x04 = 3090.
-    x05 = 3119.
-    def fit_function(x, a1,  sigma1, a2,  sigma2, a3,  sigma3, a4,  sigma4, a5, sigma5,b , c , d,e ,f):
-  
-        return (
-            gaussian(x, a1, x01, sigma1)+
-            gaussian(x, a2, x02, sigma2)+
-            gaussian(x, a3, x03, sigma3)+
-            gaussian(x, a4, x04, sigma4)+
-            gaussian(x, a5, x05, sigma5)+
-            background(x, b , c , d)+ 
-            poly(x, e, f)
-        )
-    
-    p0 = [
-        10,  2.,
-        10,  2.,
-        10,  2.,
-        10,  2.,
-        10,  2.,
-        10, 0.1, 2910.,
-        0, 0
-        # 0,0,0, 0, 0
-    ]
-    upper_limit = [
-        500,  4.,
-        500,  4.,
-        500,  4.,
-        500,  4.,
-        500,  4.,
-        10000, 5000., 2990.,
-        2000, 2000
-        # 2000, 2000, 2000, 2000, 2000
-    ]
-
-    lower_limit = [
-        3,  0.2,
-        3,  0.2,
-        3,  0.2,
-        3,  0.2,
-        3,  0.2,
-        0, 0 , 2900.,
-        -2000, -2000,
-        # -2000, -2000, -2000, -2000, -2000
-    ]
-    std = np.std(mass)
-    mn = np.mean(mass)
-    dn = np.sqrt(n)
-    dn[n == 0] = 1
-    params, cov_mat = curve_fit(fit_function, centers, n, p0=p0 , bounds=(lower_limit, upper_limit), sigma=dn)
-
-    df = pd.DataFrame({
-        collumn_names["mass_component"]["x"]: centers, collumn_names["mass_component"]["y"]: n   
-        })
-
-    fig = px.bar(df, x=collumn_names["mass_component"]["x"], y=collumn_names["mass_component"]["y"],log_y=False, range_x=ranges["mass_component"])
-    x = np.linspace(*ranges["mass_component"], 1000)
-    y = fit_function(x, *params)
-    fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
-    return fig, "Found 5 Peaks: Yield: " + " Yield: ".join([
-        "%.0f"%np.sum(gaussian(centers, a, x0, sigma))
-        for a, sigma, x0 in zip(params[:10:2],params[1:10:2],[x01,x02,x03,x04,x05])
-    ])
-
-def get_purity(value):
-    # value is not used, I just dont dare remove it because I dont know what I am doing
-    global mass_particles
-    if mass_particles == (2,3,4,5):
-        return Omega_Spectrum(value)
-    mass = get_mass() 
-    centers, n = get_data("mass_component")
-    def gaussian(x, a, x0, sigma):
-        return a * np.exp(-(x - x0) ** 2 / (2 * sigma ** 2))
-    
-    def background(x, a):
-        return abs(a) * np.ones_like(x)
-    
-    def fit_function(x, a, x0, sigma, b):
-        return gaussian(x, a, x0, sigma) + background(x, b)
-    
-    std = np.std(mass)
-    mn = np.mean(mass)
-    params, cov_mat = curve_fit(fit_function, centers, n, p0=[max(n)/3., mn , 6., 100], bounds=[
-        [0, mn - std, 1., 0],
-        [np.inf, mn + std, 9., np.inf]
-    ])
-
-    df = pd.DataFrame({
-        collumn_names["mass_component"]["x"]: centers, collumn_names["mass_component"]["y"]: n   
-        })
-
-    fig = px.bar(df, x=collumn_names["mass_component"]["x"], y=collumn_names["mass_component"]["y"],log_y=False, range_x=ranges["mass_component"])
-    x = np.linspace(*ranges["mass_component"], 1000)
-    y = fit_function(x, *params)
-    fig.add_traces(go.Scatter(x= x, y=y, mode = 'lines',showlegend=False))
-    y_ = background(x, params[-1])
-    fig.add_traces(go.Scatter(x= x, y=y_, mode = 'lines',showlegend=False))
-
-    purity = gaussian(x, *params[:3]).sum() / y.sum()
-    if value == 0:
-        return fig, "Please press the button to calculate the purity"
-    return fig, f"The purity is {purity * 100:.1f}%. This leaves {len(mass) * purity:.0f} signal events."
-
+        '''),] + subplots+[html.Div(children=[dcc.Graph(id="M_graph")]),]
+        #[html.Div(children=[html.Button('Calculate Purity', id='purity_button', n_clicks=0),dcc.Graph(id="M_graph")]),]
+          ,id="main_div")
 

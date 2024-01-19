@@ -45,4 +45,4 @@ cut_Omegac_mass = "  && lab0_M_DTF_Xic < 3200"
 
 df = df.Filter(cut_base_XicK_final_RUNI)
 
-df.Range(80_000_000).Snapshot("DecayTree", "data/Masterclass_small_2.root")
+df.Range(8_000_000).Snapshot("DecayTree", "data/MasterclasAllCuts.root")

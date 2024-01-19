@@ -7,11 +7,11 @@ collumn_names = {
         "lab1_IPCHI2_OWNPV": {"x": "IP", "y": "Counts"},
         "lab1_FDCHI2_OWNPV": {"x": r"$FD \chi^2$", "y": "Counts"},
         "lab1_FD_OWNPV": {"x": "Flight Distance of Ξ in mm", "y": "Counts"},
-        "mass_component": {"x": "M", "y": "Counts"},
+        "mass_component": {"x": "Center of Mass Energy in MeV", "y": "Counts"},
         "lab0_PT": {"x": "Transverse Momentum in MeV", "y": "Counts"},
         "lab1_PT": {"x": "Transverse Momentum in MeV", "y": "Counts"},
-        "lab0_M": {"x": "M", "y": "Counts"},
-        "lab1_M": {"x": "M", "y": "Counts"}
+        "lab0_M": {"x": "Center of Mass Energy in MeV", "y": "Counts"},
+        "lab1_M": {"x": "Center of Mass Energy in MeV", "y": "Counts"}
 
 }  
 
